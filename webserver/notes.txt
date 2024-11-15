@@ -1,0 +1,5 @@
+Things to try:
+
+* Command line tool
+* Run the bin on startup with systemctl
+* Webserver that grabs frames from webcam
