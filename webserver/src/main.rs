@@ -16,11 +16,16 @@ fn main() {
         Ok(pool) => pool,
         Err(thread_err) => panic!("Problem setting up thread pool: {thread_err:?}")
     };
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
-        pool.execute(|| {
-            handle_connections(stream);
-        });
+    for stream_res in listener.incoming() {
+        match stream_res {
+            Ok(stream) => {
+
+                pool.execute(|| {
+                    handle_connections(stream);
+                });
+            },
+            Err(msg) => println!("Issue with steam {msg:?}")
+        }
     }
 }
 
@@ -55,43 +60,3 @@ fn handle_connections(mut stream: TcpStream) {
 
 }
 
-fn dummy2(mut stream: TcpStream) {
-    let buf_reader = BufReader::new(&mut stream);
-
-    let request_line = buf_reader.lines().next().unwrap().unwrap();
-    // let _http_request: Vec<_> = buf_reader
-    //     .lines()
-    //     .map(|result| result.unwrap())
-    //     .take_while(|line| !line.is_empty())
-    //     .collect();
-
-    let mut response_html = "oops.html";
-    if request_line.contains("GET / ") {
-        response_html = "test.html";
-    }
-    let status_line = "HTTP/1.1 200 OK";
-    let contents = fs::read_to_string(response_html).unwrap();
-    let length = contents.len();
-    let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
-    stream.write_all(response.as_bytes()).unwrap();
-}
-fn dummy(mut stream: TcpStream) {
-    let buf_reader = BufReader::new(&mut stream);
-
-    let request_line = buf_reader.lines().next().unwrap().unwrap();
-    // let _http_request: Vec<_> = buf_reader
-    //     .lines()
-    //     .map(|result| result.unwrap())
-    //     .take_while(|line| !line.is_empty())
-    //     .collect();
-
-    let mut response_html = "oops.html";
-    if request_line.contains("GET / ") {
-        response_html = "test.html";
-    }
-    let status_line = "HTTP/1.1 200 OK";
-    let contents = fs::read_to_string(response_html).unwrap();
-    let length = contents.len();
-    let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
-    stream.write_all(response.as_bytes()).unwrap();
-}

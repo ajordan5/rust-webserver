@@ -16,6 +16,8 @@ pub struct ThreadPool {
 }
 
 impl Worker {
+    /// Listen to a receiver on a channel in an endless loop for inside a dedicated thread. The
+    /// sender will deliver Job types to execute
     fn new(id: usize, rx: Arc<Mutex<std::sync::mpsc::Receiver<Job>>>) -> Worker {
         let thread = thread::spawn(move || loop {
 
